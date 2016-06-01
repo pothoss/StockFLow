@@ -452,6 +452,12 @@ public class StockW extends JFrame {
 			tfprixV.setText(Float.toString(Stock.trouverArticleNom((String) listeArticles.getValueAt(listeArticles.getSelectedRow(),1)).getPrixV()));
 			valider.addActionListener(new EnregistrerModifArticle());
 			Logiciel.getFen7().setEnabled(false);
+			try {
+				Stock.enregistrer();
+			} catch (ClassNotFoundException | IOException e1) {
+				// TODO Auto-generated catch block
+				 erreur.setText("Fichier non trouvé");
+			}
 		}
 	}
 	public class EnregistrerModifArticle implements ActionListener{
@@ -466,6 +472,12 @@ public class StockW extends JFrame {
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixV(Float.parseFloat(tfprixV.getText()));
 				ajouterLesArticles();
 				JOptionPane.showMessageDialog(null,"Article Modifié");
+				try {
+					Stock.enregistrer();
+				} catch (ClassNotFoundException | IOException e1) {
+					// TODO Auto-generated catch block
+					 erreur.setText("Fichier non trouvé");
+				}
 				nvArticle.dispose();
 			} catch (NumberFormatException e1) {
 				// TODO Auto-generated catch block
@@ -482,7 +494,17 @@ public class StockW extends JFrame {
 			// TODO Auto-generated method stub
 			Stock.enleverArticle(Stock.trouverArticleRef(((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0))));
 			ajouterLesArticles();
+			try {
+				Stock.enregistrer();
+			} catch (ClassNotFoundException | IOException e1) {
+				// TODO Auto-generated catch block
+				 erreur.setText("Fichier non trouvé");
+				 try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e2) {}
+			}
 			confirmer.dispose();
+
 		}
 		
 	}
