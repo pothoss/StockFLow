@@ -42,7 +42,17 @@ public class StockW extends JFrame {
 	private JTextField tfsearch;
 	private JTable listeArticles;
 	private String[] entete = { "Référence", "Désignation", "Quantité en stock", "Prix d'achat", "Prix de vente"};
-	private DefaultTableModel tableModel = new DefaultTableModel(entete,0);		
+	private DefaultTableModel tableModel = new DefaultTableModel(entete,0){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isCellEditable(int row, int column){
+			return false;
+		}
+	};		
 	//composant confirmer annuler
 	private JDialog confirmer;
 	private JLabel attention;
@@ -55,9 +65,11 @@ public class StockW extends JFrame {
 			private JTextField tfnom, tfquantite, tfprixA, tfprixV, tfreference;
 			private JButton valider, annuler;
 			private JLabel erreur;
-	
+	// JDialogue succes
+			private JDialog popup;
+			private JLabel textSucces;
 	// constructeur
-
+			
 	public StockW(String t) {
 		this.setTitle(t);
 		this.setSize(1000, 600);
@@ -152,9 +164,12 @@ public class StockW extends JFrame {
 		modify.setEnabled(false);
 		modify.addActionListener(new modifierArticle());
 		remove.setEnabled(false);
+		remove.addActionListener(new supprimer());
 		search = new JButton ("Rechercher");
+		listeArticles.setSize(300,100);
 		listeArticles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		listeArticles.getSelectionModel().addListSelectionListener(new selectionliste());
+		
 		
 		//Première ligne de "center"
 		line1.add(add);
@@ -184,58 +199,7 @@ public class StockW extends JFrame {
 
 	}
 
-//	public void construireArticle() {
-//		JPanel nvArticle = new JPanel();
-//
-//		this.nomA = new JLabel();
-//		this.ref = new JLabel();
-//		this.quantite = new JTextField();
-//		this.prixA = new JTextField();
-//		this.prixV = new JTextField();
-//
-//		if (!Stock.existeArticleNom(rechercher.getText())) {
-//			this.ref.setText(Integer.toString(Stock.mesArticle.size()));
-//			this.quantite.setText("Quantit� : ");
-//			this.prixA.setText("Prix d'achat");
-//			this.prixV.setText("Prix de vente");
-//		} else {
-//			this.nomA.setText(rechercher.getText());
-//			this.ref.setText(Integer.toString(Stock.trouverArticleNom(rechercher.getText()).getReference()));
-//			this.quantite.setText(
-//					"Quantit� : " + Integer.toString(Stock.trouverArticleNom(rechercher.getText()).getQuantite()));
-//			this.prixA
-//					.setText("Prix d'achat" + Float.toString(Stock.trouverArticleNom(rechercher.getText()).getPrixA()));
-//			this.prixV.setText(
-//					"Prix de vente" + Float.toString(Stock.trouverArticleNom(rechercher.getText()).getPrixV()));
-//		}
-//		center.removeAll();
-//		center.setLayout(new FlowLayout());
-//
-//		nvArticle.setLayout(new BoxLayout(nvArticle, BoxLayout.Y_AXIS));
-//		nvArticle.add(nomA);
-//		nvArticle.add(Box.createVerticalBox());
-//		nvArticle.add(ref);
-//		nvArticle.add(Box.createVerticalBox());
-//		nvArticle.add(quantite);
-//		nvArticle.add(Box.createVerticalBox());
-//		nvArticle.add(prixA);
-//		nvArticle.add(Box.createVerticalBox());
-//		nvArticle.add(prixV);
-//
-//		JPanel actionBouton = new JPanel();
-//		actionBouton.setLayout(new GridLayout(3, 1));
-//		this.supprimer = new JButton("Supprimer Article");
-//		this.enregistrer = new JButton("Enregistrer modification");
-//		this.annulerModif = new JButton("Annuler les modification");
-//
-//		actionBouton.add(supprimer);
-//		actionBouton.add(enregistrer);
-//		actionBouton.add(annulerModif);
-//
-//		center.add(nvArticle);
-//		center.add(actionBouton);
-//
-//	}
+
 
 	
 	// boite de dialogue pour confirmation 
@@ -258,6 +222,24 @@ public class StockW extends JFrame {
 		confirmer.add(non);
 		confirmer.setVisible(true);
 	}
+	
+	//pop up de succés
+	public void popupSuc(String message){
+		popup = new JDialog(Logiciel.getFen7(), "StockFlow - Succés");
+		popup.setSize(300, 150);
+		popup.setLocationRelativeTo(null);
+		popup.add(central = new JPanel());
+		textSucces=new JLabel();
+		textSucces.setText(message);
+		popup.add(textSucces);
+		popup.setVisible(true);
+		
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {}
+		popup.dispose();
+	}
+	
 	//Nouvel article
 	
 	public void nouveauArticle() {
@@ -271,7 +253,7 @@ public class StockW extends JFrame {
 		tfreference = new JTextField();
 		tfreference.setColumns(6);
 		greference = new TextPrompt(Integer.toString(Stock.mesArticle.size()+1), tfreference);
-
+		tfreference.setEditable(false);
 		// nom
 		tfnom = new JTextField();
 		tfnom.setColumns(20);
@@ -280,7 +262,7 @@ public class StockW extends JFrame {
 		// quantite
 		tfquantite = new JTextField();
 		tfquantite.setColumns(8);
-		gquantite = new TextPrompt("Quantit�", tfquantite);
+		gquantite = new TextPrompt("Quantit�", tfquantite);
 
 		// prix Achat
 		tfprixA = new JTextField();
@@ -311,6 +293,7 @@ public class StockW extends JFrame {
 		nvArticle.add(Box.createVerticalGlue());
 		nvArticle.add(erreur);
 		nvArticle.setVisible(true);
+		//nvArticle.setDefaultCloseOperation();
 	}
 	public class NewArticle implements ActionListener {
 		public void actionPerformed(ActionEvent i) {
@@ -370,7 +353,8 @@ public class StockW extends JFrame {
 				art = new Article(tfnom.getText() ,Integer.parseInt(tfquantite.getText()),Float.parseFloat(tfprixA.getText()),Float.parseFloat(tfprixV.getText()));
 				Stock.ajouterArticle(art);
 				ajouerLesArticle();
-				erreur.setText("L'Article a �t� creer");
+				erreur.setText("L'Article a été creer");
+				popupSuc("L'Article a été creer");
 				nvArticle.dispose();
 			} catch (NumberFormatException | IOException e1) {
 				// TODO Auto-generated catch block
@@ -397,7 +381,7 @@ public class StockW extends JFrame {
 		
 	}
 	public class confirmerOui implements ActionListener{
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
@@ -405,7 +389,6 @@ public class StockW extends JFrame {
 			nvArticle.dispose();
 			Logiciel.getFen7().setEnabled(true);
 		}
-		
 	}
 	public class confirmerNon implements ActionListener{
 
@@ -458,17 +441,36 @@ public class StockW extends JFrame {
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixA(Float.parseFloat(tfprixA.getText()));
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixV(Float.parseFloat(tfprixV.getText()));
 				ajouerLesArticle();
-				erreur.setText("L'Article a �t� Modifi�");
-			    try{
-			        Thread.sleep(2000);
-			        }catch(InterruptedException e5){}
+				popupSuc("Article Modifié");
 				nvArticle.dispose();
 			} catch (NumberFormatException e1) {
 				// TODO Auto-generated catch block
 				System.out.println("Vous devez entrez des nombre des les case quantite, prix d'achat et de vente ou le fichier n'existe pas");
 				erreur.setText("Veuillez entrez des chiffre");
 			}	
+			Logiciel.getFen7().setEnabled(true);
 		} 	
+	}
+	public class supprimerDef implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			Stock.enleverArticle(Stock.trouverArticleRef(((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0))));
+			confirmer.dispose();
+		}
+		
+	}
+	
+	public class supprimer implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			confirmerAnnuler("En ètes-vous sur ?");
+			oui.addActionListener(new supprimerDef());
+		}
+		
 	}
 }
 
