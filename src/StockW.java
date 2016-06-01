@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -79,7 +80,7 @@ public class StockW extends JFrame {
 		createWindow();
 	}
 //ajout article au JTable
-	public void ajouerLesArticle(){
+	public void ajouterLesArticles(){
 		listeArticles = new JTable(this.tableModel);
 		this.tableModel.setRowCount(0);
 		listeArticles.setModel(tableModel);
@@ -91,7 +92,7 @@ public class StockW extends JFrame {
 	public void createWindow() {
 		// creation du tableau d'article
 		
-		this.ajouerLesArticle();
+		this.ajouterLesArticles();
 		
 		// Contener principal
 		main = new JPanel();
@@ -167,7 +168,6 @@ public class StockW extends JFrame {
 		remove.addActionListener(new supprimer());
 		search = new JButton ("Rechercher");
 		listeArticles.setSize(300,100);
-		listeArticles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		listeArticles.getSelectionModel().addListSelectionListener(new selectionliste());
 		
 		
@@ -183,7 +183,9 @@ public class StockW extends JFrame {
 		line2.add(search);
 		
 		//troisième ligne de "center"
-		line3.add(new JScrollPane(listeArticles));
+		JScrollPane js = new JScrollPane(listeArticles);
+		js.setPreferredSize(new Dimension(600,120));
+		line3.add(js);
 		
 		center.setLayout(new GridLayout(3, 1, 10, 10));
 		center.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -224,22 +226,41 @@ public class StockW extends JFrame {
 		confirmer.setVisible(true);
 	}
 	
-	//pop up de succés
-	public void popupSuc(String message){
-		popup = new JDialog(Logiciel.getFen7(), "StockFlow - Succés");
-		popup.setSize(300, 150);
-		popup.setLocationRelativeTo(null);
-		popup.add(central = new JPanel());
-		textSucces=new JLabel();
-		textSucces.setText(message);
-		popup.add(textSucces);
-		popup.setVisible(true);
+	public void confirmerSupprimer(String message){
+		this.confirmer = new JDialog(Logiciel.getFen7(), "Attention");
+		this.confirmer.setSize(260,130);
+		this.confirmer.setLocationRelativeTo(null);
+		this.confirmer.setContentPane(central2 = new JPanel());
 		
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {}
-		popup.dispose();
+		// message de confirmation
+		
+		this.attention = new JLabel(message);
+		this.oui = new JButton("OUI");
+		oui.addActionListener(new supprimerDef());
+		this.non = new JButton("NON");
+		non.addActionListener(new confirmerNon());
+		confirmer.add(attention);
+		confirmer.add(oui);
+		confirmer.add(non);
+		confirmer.setVisible(true);
 	}
+	
+	//pop up de succés
+//	public void popupSuc(){
+//		popup = new JDialog(Logiciel.getFen7(), "StockFlow - Succés");
+//		popup.setSize(300, 150);
+//		popup.setLocationRelativeTo(null);
+//		popup.add(central = new JPanel());
+//		textSucces=new JLabel();
+//		textSucces.setText("Article crée");
+//		popup.add(textSucces);
+//		popup.setVisible(true);
+//		
+//		try {
+//			Thread.sleep(1500);
+//		} catch (InterruptedException e) {}
+//		popup.dispose();
+//	}
 	
 	//Nouvel article
 	
@@ -250,6 +271,7 @@ public class StockW extends JFrame {
 		nvArticle.setContentPane(central = new JPanel());
 		
 		nvArticle.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
 		// référence
 		tfreference = new JTextField();
 		tfreference.setColumns(6);
@@ -281,8 +303,10 @@ public class StockW extends JFrame {
 		// Boutons
 		valider = new JButton("Enregistrer");
 		valider.addActionListener(new EnregistrerArticle());
+		valider.setSize(60,60);
 		annuler = new JButton("Annuler");
 		annuler.addActionListener(new Annuler());
+		annuler.setSize(60,60);
 		// ajout à la fenetre
 		nvArticle.add(tfreference);
 		nvArticle.add(tfnom);
@@ -294,7 +318,6 @@ public class StockW extends JFrame {
 		nvArticle.add(Box.createVerticalGlue());
 		nvArticle.add(erreur);
 		nvArticle.setVisible(true);
-		//nvArticle.setDefaultCloseOperation();
 	}
 	public class NewArticle implements ActionListener {
 		public void actionPerformed(ActionEvent i) {
@@ -313,9 +336,7 @@ public class StockW extends JFrame {
 	public class OpenClients implements ActionListener {
 		public void actionPerformed(ActionEvent ei) {
 			Logiciel.Show(Logiciel.getFen6());
-
 		}
-
 	}
 
 	public class OpenStock implements ActionListener {
@@ -338,12 +359,6 @@ public class StockW extends JFrame {
 			Logiciel.Show(Logiciel.getFen4());
 		}
 	}
-
-	public class NextScreen implements ActionListener {
-		public void actionPerformed(ActionEvent ei) {
-			//construireArticle();
-		}
-	}
 	
 	public class EnregistrerArticle implements ActionListener{
 
@@ -353,9 +368,17 @@ public class StockW extends JFrame {
 			try {					
 				art = new Article(tfnom.getText() ,Integer.parseInt(tfquantite.getText()),Float.parseFloat(tfprixA.getText()),Float.parseFloat(tfprixV.getText()));
 				Stock.ajouterArticle(art);
-				ajouerLesArticle();
-				erreur.setText("L'Article a été creer");
-				popupSuc("L'Article a été creer");
+				ajouterLesArticles();
+				JOptionPane.showMessageDialog(null, "Article Créé");
+				try {
+					Stock.enregistrer();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					erreur.setText("Impossible fichier non trouvé");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e2) {}
+				}
 				nvArticle.dispose();
 			} catch (NumberFormatException | IOException e1) {
 				// TODO Auto-generated catch block
@@ -441,8 +464,8 @@ public class StockW extends JFrame {
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setQuantite(Integer.parseInt(tfquantite.getText()));
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixA(Float.parseFloat(tfprixA.getText()));
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixV(Float.parseFloat(tfprixV.getText()));
-				ajouerLesArticle();
-				popupSuc("Article Modifié");
+				ajouterLesArticles();
+				JOptionPane.showMessageDialog(null,"Article Modifié");
 				nvArticle.dispose();
 			} catch (NumberFormatException e1) {
 				// TODO Auto-generated catch block
@@ -458,6 +481,7 @@ public class StockW extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			Stock.enleverArticle(Stock.trouverArticleRef(((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0))));
+			ajouterLesArticles();
 			confirmer.dispose();
 		}
 		
@@ -468,8 +492,7 @@ public class StockW extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			confirmerAnnuler("En ètes-vous sur ?");
-			oui.addActionListener(new supprimerDef());
+			confirmerSupprimer("En ètes-vous sur ?");
 		}
 		
 	}

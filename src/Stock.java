@@ -50,7 +50,7 @@ public class Stock {
 	}
 
 	// ajouter un article
-	// TODO dÃ©pendance avec la classe saisr
+	// TODO dÃ©pendance avec la classe saisir
 	 static public void ajouterArticle(Article a){
 		 if (!existeArticle(a)){
 		 ajoutArticle(a);
@@ -241,8 +241,8 @@ public class Stock {
 	 //donc fais attention au nom que tu lui donne et le chemin aussi, si tu vas dans 
 	 // d'autres dossier. 
 		@SuppressWarnings("unchecked")
-		ArrayList<Article> tabFichier= (ArrayList<Article>) ouverture.readObject(); // On est obligé de caster ce qu'il retourne
-		Stock.mesArticle=tabFichier;	// 	Je sais pas pourquoi mais c'est comme ça ;)
+		ArrayList<Article> tabFichier= (ArrayList<Article>) ouverture.readObject(); // On est obligï¿½ de caster ce qu'il retourne
+		Stock.mesArticle=tabFichier;	// 	Je sais pas pourquoi mais c'est comme ï¿½a ;)
 		ouverture.close();
 	}
 

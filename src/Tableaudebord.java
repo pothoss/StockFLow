@@ -6,17 +6,25 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+
+//import StockW.Annuler;
+//import StockW.EnregistrerArticle;
+//import StockW.confirmerNon;
+//import StockW.confirmerOui;
 
 public class Tableaudebord extends JFrame {
 
@@ -37,6 +45,21 @@ public class Tableaudebord extends JFrame {
 	private JButton Stockadd, Stocklist, Stockedit, Clientsadd, Clientslist, Clientsedit, Ventesadd, Venteslist,
 			Ventesedit;
 	//
+	// composants en rapport avec la JDialog
+	private JDialog nvArticle;
+	private JPanel central;
+	private TextPrompt gnom, gquantite, gprixA, gprixV, greference;
+	private JTextField tfnom, tfquantite, tfprixA, tfprixV, tfreference;
+	private JButton valider, annuler;
+	private JLabel erreur;
+	
+	//composant confirmer annuler
+		private JDialog confirmer;
+		private JLabel attention;
+		private JButton oui,non;
+		private JPanel central2;
+		
+		//constructeur
 
 	public Tableaudebord(String t) {
 		this.setTitle(t);
@@ -113,8 +136,10 @@ public class Tableaudebord extends JFrame {
 		sub1 = new JPanel();
 		labelsub1 = new JLabel("Action rapide - " + labels[0]);
 		Stockadd = new JButton("Ajouter un article...");
+		Stockadd.addActionListener(new NewArticle());
 		Stocklist = new JButton("Afficher tous les articles...");
 		Stockedit = new JButton("Modifier un article...");
+		Stockedit.addActionListener(new OpenStock());
 		// Sub clients
 		sub2 = new JPanel();
 		labelsub2 = new JLabel("Action rapide - " + labels[1]);
@@ -181,7 +206,82 @@ public class Tableaudebord extends JFrame {
 		main.add(center, BorderLayout.CENTER);
 
 	}
+	public void nouveauArticle() {
+		nvArticle = new JDialog(Logiciel.getFen7(), "StockFlow - Nouvel Article");
+		nvArticle.setSize(450, 200);
+		nvArticle.setLocationRelativeTo(null);
+		nvArticle.setContentPane(central = new JPanel());
+		
+		nvArticle.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		// référence
+		tfreference = new JTextField();
+		tfreference.setColumns(6);
+		greference = new TextPrompt(Integer.toString(Stock.mesArticle.size()+1), tfreference);
+		tfreference.setEditable(false);
+		// nom
+		tfnom = new JTextField();
+		tfnom.setColumns(20);
+		gnom = new TextPrompt("Nom", tfnom);
 
+		// quantite
+		tfquantite = new JTextField();
+		tfquantite.setColumns(8);
+		gquantite = new TextPrompt("Quantit�", tfquantite);
+
+		// prix Achat
+		tfprixA = new JTextField();
+		tfprixA.setColumns(10);
+		gprixA = new TextPrompt("Prix d'achats", tfprixA);
+
+		// prix Vente
+		tfprixV = new JTextField();
+		tfprixV.setColumns(10);
+		gprixV = new TextPrompt("Prix de Ventes", tfprixV);
+
+		//message d'erreur
+		this.erreur = new JLabel();
+
+		// Boutons
+		valider = new JButton("Enregistrer");
+		valider.addActionListener(new EnregistrerArticle());
+		annuler = new JButton("Annuler");
+		annuler.addActionListener(new Annuler());
+		// ajout à la fenetre
+		nvArticle.add(tfreference);
+		nvArticle.add(tfnom);
+		nvArticle.add(tfquantite);
+		nvArticle.add(tfprixA);
+		nvArticle.add(tfprixV);
+		nvArticle.add(valider);
+		nvArticle.add(annuler);
+		nvArticle.add(Box.createVerticalGlue());
+		nvArticle.add(erreur);
+		nvArticle.setVisible(true);
+	}
+	// dialog confirmation
+	public void confirmerAnnuler(String message){
+		this.confirmer = new JDialog(Logiciel.getFen7(), "Attention");
+		this.confirmer.setSize(260,130);
+		this.confirmer.setLocationRelativeTo(null);
+		this.confirmer.setContentPane(central2 = new JPanel());
+		
+		// message de confirmation
+		
+		this.attention = new JLabel(message);
+		this.oui = new JButton("OUI");
+		oui.addActionListener(new confirmerOui());
+		this.non = new JButton("NON");
+		non.addActionListener(new confirmerNon());
+		confirmer.add(attention);
+		confirmer.add(oui);
+		confirmer.add(non);
+		confirmer.setVisible(true);
+	}
+	
+	
+	
+	
+	//bouton action
 	public class OpenParametres implements ActionListener {
 		public void actionPerformed(ActionEvent ei) {
 			Logiciel.Show(Logiciel.getFen5());
@@ -217,5 +317,67 @@ public class Tableaudebord extends JFrame {
 			Logiciel.Show(Logiciel.getFen4());
 		}
 	}
+	
+	public class NewArticle implements ActionListener {
+		public void actionPerformed(ActionEvent i) {
+			nouveauArticle();
+		}
+	}
+		
+		
+	public class EnregistrerArticle implements ActionListener{
 
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Article art;
+			try {					
+				art = new Article(tfnom.getText() ,Integer.parseInt(tfquantite.getText()),Float.parseFloat(tfprixA.getText()),Float.parseFloat(tfprixV.getText()));
+				Stock.ajouterArticle(art);
+				erreur.setText("L'Article a été creer");
+				nvArticle.dispose();
+			} catch (NumberFormatException | IOException e1) {
+				// TODO Auto-generated catch block
+				System.out.println("Vous devez entrez des nombre des les case quantite, prix d'achat et de vente ou le fichier n'existe pas");
+				erreur.setText("Veuillez entrez des chiffres");
+			}
+			Logiciel.getFen7().setEnabled(true);
+		} 	
+	}
+	
+	public class Annuler implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if (tfnom.getText().isEmpty() && tfquantite.getText().isEmpty() && tfprixA.getText().isEmpty() && tfprixV.getText().isEmpty()){
+				nvArticle.dispose();
+			}else{
+				confirmerAnnuler("Etes-vous sur de vouloir annuler ?");
+			}
+			Logiciel.getFen7().setEnabled(true);
+		}
+	}
+		public class confirmerOui implements ActionListener{
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				confirmer.dispose();
+				nvArticle.dispose();
+				Logiciel.getFen7().setEnabled(true);
+			}
+		}
+		public class confirmerNon implements ActionListener{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				confirmer.dispose();
+				Logiciel.getFen7().setEnabled(true);
+			}
+			
+		}
+		
+	
+	
 }
