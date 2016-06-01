@@ -196,7 +196,8 @@ public class StockW extends JFrame {
 		main.add(top, BorderLayout.NORTH);
 		main.add(left, BorderLayout.WEST);
 		main.add(center, BorderLayout.CENTER);
-
+		
+		
 	}
 
 
@@ -248,7 +249,7 @@ public class StockW extends JFrame {
 		nvArticle.setLocationRelativeTo(null);
 		nvArticle.setContentPane(central = new JPanel());
 		
-
+		nvArticle.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		// référence
 		tfreference = new JTextField();
 		tfreference.setColumns(6);
