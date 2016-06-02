@@ -7,9 +7,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultRowSorter;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,7 +23,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -42,6 +47,7 @@ public class StockW extends JFrame {
 	private JButton add, modify, search, remove;
 	private JLabel searchtitle;
 	private JTextField tfsearch;
+	private TextPrompt gsearch;
 	private JTable listeArticles;
 	private String[] entete = { "Référence", "Désignation", "Quantité en stock", "Prix d'achat", "Prix de vente"};
 	private DefaultTableModel tableModel = new DefaultTableModel(entete,0){
@@ -161,7 +167,10 @@ public class StockW extends JFrame {
 		line3 = new JPanel();
 		
 		searchtitle = new JLabel("Rechercher un article : ");
-		tfsearch = new JTextField("Entrez un nom ou une référence");
+		tfsearch = new JTextField();
+		tfsearch.setColumns(22);
+		tfsearch.getDocument().addDocumentListener(new Filtre());
+		gsearch = new TextPrompt("Entrez un nom ou une référence",tfsearch);
 		add = new JButton ("Créer un article...");
 		remove = new JButton ("Supprimer...");
 		modify = new JButton ("Modifer...");
@@ -172,6 +181,7 @@ public class StockW extends JFrame {
 		search = new JButton ("Rechercher");
 		listeArticles.setSize(300,100);
 		listeArticles.getSelectionModel().addListSelectionListener(new selectionliste());
+		listeArticles.setAutoCreateRowSorter(true);
 		//listeArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		
@@ -205,6 +215,16 @@ public class StockW extends JFrame {
 		
 		
 	}
+	@SuppressWarnings("unchecked")
+	public void applyTableFilter(String filterText) {
+		// On escape le texte afin que son contenu ne soit pas considéré comme
+		// une regexp
+		String escapedFilterText = Pattern.quote(filterText);
+		// On ajoute les wildcards a gauche et a droite
+		String completeFilterText = ".*" + escapedFilterText + ".*";
+		// On applique le filtre a la JTable
+		((DefaultRowSorter) listeArticles.getRowSorter()).setRowFilter(RowFilter.regexFilter(completeFilterText));
+		}
 
 
 
@@ -480,6 +500,7 @@ public class StockW extends JFrame {
 				Stock.trouverArticleRef((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0)).setPrixV(Float.parseFloat(tfprixV.getText()));
 				ajouterLesArticles();
 				JOptionPane.showMessageDialog(null,"Article Modifié");
+				Logiciel.Show2(Logiciel.getFen7());
 				try {
 					Stock.enregistrer();
 				} catch (ClassNotFoundException | IOException e1) {
@@ -531,6 +552,24 @@ public class StockW extends JFrame {
 			confirmerSupprimer("En ètes-vous sur ?");
 		}
 		
+	}
+	
+	public class Filtre implements DocumentListener{
+		
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			applyTableFilter(tfsearch.getText());
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			applyTableFilter(tfsearch.getText());
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+			applyTableFilter(tfsearch.getText());
+		}
 	}
 }
 
