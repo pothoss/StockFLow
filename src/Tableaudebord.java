@@ -216,7 +216,7 @@ public class Tableaudebord extends JFrame {
 		// référence
 		tfreference = new JTextField();
 		tfreference.setColumns(6);
-		greference = new TextPrompt(Integer.toString(Stock.mesArticle.size()+1), tfreference);
+		greference = new TextPrompt(Integer.toString(Stock.trouverReference()+1), tfreference);
 		tfreference.setEditable(false);
 		// nom
 		tfnom = new JTextField();

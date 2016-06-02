@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -82,12 +83,14 @@ public class StockW extends JFrame {
 //ajout article au JTable
 	public void ajouterLesArticles(){
 		listeArticles = new JTable(this.tableModel);
+		
 		this.tableModel.setRowCount(0);
 		listeArticles.setModel(tableModel);
 		for(int i = 0 ; i < Stock.mesArticle.size();i++){
 			Object[] donnees={Stock.mesArticle.get(i).getReference(), Stock.mesArticle.get(i).getNom(), Stock.mesArticle.get(i).getQuantite(), Stock.mesArticle.get(i).getPrixA(), Stock.mesArticle.get(i).getPrixV()};
 			this.tableModel.addRow(donnees);
 		}
+		 tableModel.fireTableDataChanged();
 	}
 	public void createWindow() {
 		// creation du tableau d'article
@@ -169,6 +172,7 @@ public class StockW extends JFrame {
 		search = new JButton ("Rechercher");
 		listeArticles.setSize(300,100);
 		listeArticles.getSelectionModel().addListSelectionListener(new selectionliste());
+		//listeArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		
 		//Première ligne de "center"
@@ -275,7 +279,7 @@ public class StockW extends JFrame {
 		// référence
 		tfreference = new JTextField();
 		tfreference.setColumns(6);
-		greference = new TextPrompt(Integer.toString(Stock.mesArticle.size()+1), tfreference);
+		greference = new TextPrompt(Integer.toString(Stock.trouverReference()+1), tfreference);
 		tfreference.setEditable(false);
 		// nom
 		tfnom = new JTextField();
@@ -369,6 +373,7 @@ public class StockW extends JFrame {
 				art = new Article(tfnom.getText() ,Integer.parseInt(tfquantite.getText()),Float.parseFloat(tfprixA.getText()),Float.parseFloat(tfprixV.getText()));
 				Stock.ajouterArticle(art);
 				ajouterLesArticles();
+				listeArticles.repaint();
 				JOptionPane.showMessageDialog(null, "Article Créé");
 				try {
 					Stock.enregistrer();
@@ -433,6 +438,9 @@ public class StockW extends JFrame {
 	        if (listeArticles.getSelectedRow() > -1) {
 	        	modify.setEnabled(true);
 	    		remove.setEnabled(true);
+	        }else{
+	        	modify.setEnabled(false);
+	    		remove.setEnabled(false);
 	        }
 			
 		}
@@ -492,8 +500,14 @@ public class StockW extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			Stock.enleverArticle(Stock.trouverArticleRef(((int) listeArticles.getValueAt(listeArticles.getSelectedRow(),0))));
+			 int[] selection = listeArticles.getSelectedRows();
+		        //Tant qu'il y a des lignes à supprimer la boucle continue
+		        for(int j = 0; j < selection.length; j++){
+		           Stock.enleverArticle(Stock.trouverArticleRef(((int) listeArticles.getValueAt(selection[j],0))));
+		        }
 			ajouterLesArticles();
+			Logiciel.Show2(Logiciel.getFen7());
+			
 			try {
 				Stock.enregistrer();
 			} catch (ClassNotFoundException | IOException e1) {

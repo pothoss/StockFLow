@@ -14,7 +14,7 @@ public class Article implements Serializable {
 	public Article(String nom, int quantite, float prixA, float prixV) throws IOException {
 		super();
 		this.nom = nom;
-		ref = Stock.mesArticle.size();
+		ref = Stock.trouverReference();
 		Article.ref++;
 		this.refArticle = ref;
 		this.quantite = quantite;

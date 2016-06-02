@@ -175,7 +175,22 @@ public class Logiciel {
 
 		}
 	}
+	
+	public static void Show2(StockW j) {
+		j.setTitle(title + " Entreprise" + Logiciel.getCompanyname() + " - Gestion du stock");
+		j.setLocationRelativeTo(null);
+		j.createWindow();
+		j.setVisible(true);
+		Window[] listefenetres = Window.getWindows();
+		for (int i = 0; i < listefenetres.length; i++) {
+			if (listefenetres[i].isVisible()){
+				listefenetres[i].setVisible(false);
+			}
 
+		}
+		j.setVisible(true);
+	}
+	
 	public static void Show(ClientsW j) {
 		j.setTitle(title + " Entreprise" + Logiciel.getCompanyname() + " - Gestion des clients");
 		j.setLocationRelativeTo(null);
@@ -231,18 +246,18 @@ public class Logiciel {
 
 
 		//
-//		Article ps4=new Article("ps4",10,270,300);
-//		Stock.ajouterArticle(ps4);
-//		Article xbox=new Article("xbox",18,350,400);
-//		Stock.ajouterArticle(xbox);
-//		Article pomme=new Article("pomme",124,3,7);
-//		Stock.ajouterArticle(pomme);
-//		Article ordinateur=new Article("ordinateur",5,750,1000);
-//		Stock.ajouterArticle(ordinateur);
-//		Article iphone=new Article("iphone",50,600,620);
-//		Stock.ajouterArticle(iphone);
+		Article ps4=new Article("ps4",10,270,300);
+		Stock.ajouterArticle(ps4);
+		Article xbox=new Article("xbox",18,350,400);
+		Stock.ajouterArticle(xbox);
+		Article pomme=new Article("pomme",124,3,7);
+		Stock.ajouterArticle(pomme);
+		Article ordinateur=new Article("ordinateur",5,750,1000);
+		Stock.ajouterArticle(ordinateur);
+		Article iphone=new Article("iphone",50,600,620);
+		Stock.ajouterArticle(iphone);
 //		
-//		Stock.enregistrer();
+	Stock.enregistrer();
 //		
 //		Stock.ouvrirFichier();
 		
