@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 
 import javax.swing.Box;
@@ -16,10 +19,14 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.table.DefaultTableModel;
 
 //import StockW.Annuler;
 //import StockW.EnregistrerArticle;
@@ -71,7 +78,7 @@ public class Tableaudebord extends JFrame {
 	}
 
 	public void createWindow() {
-
+		addKeyListener(new raccourcisClavier());
 		// Contener principal
 		main = new JPanel();
 		this.setContentPane(main);
@@ -138,6 +145,7 @@ public class Tableaudebord extends JFrame {
 		Stockadd = new JButton("Ajouter un article...");
 		Stockadd.addActionListener(new NewArticle());
 		Stocklist = new JButton("Afficher tous les articles...");
+		Stocklist.addActionListener(new afficherLarticle());
 		Stockedit = new JButton("Modifier un article...");
 		Stockedit.addActionListener(new OpenStock());
 		// Sub clients
@@ -376,6 +384,78 @@ public class Tableaudebord extends JFrame {
 				Logiciel.getFen7().setEnabled(true);
 			}
 			
+		}
+		
+		public class afficherLarticle implements ActionListener{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				JFrame f = new JFrame("Liste Artites");
+				JTable tableA= new JTable();
+				String[] entete = { "Référence", "Désignation", "Quantité en stock", "Prix d'achat", "Prix de vente"};
+				DefaultTableModel tableModel = new DefaultTableModel(entete,0){
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public boolean isCellEditable(int row, int column){
+						return false;
+					}
+				};
+				
+				f.setSize(1000,600);
+				f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				f.setLocationRelativeTo(null);
+		
+				
+				
+				tableModel.setRowCount(0);
+				tableA.setModel(tableModel);
+				for(int i = 0 ; i < Stock.mesArticle.size();i++){
+					Object[] donnees={Stock.mesArticle.get(i).getReference(), Stock.mesArticle.get(i).getNom(), Stock.mesArticle.get(i).getQuantite(), Stock.mesArticle.get(i).getPrixA(), Stock.mesArticle.get(i).getPrixV()};
+					tableModel.addRow(donnees);
+				}
+				JScrollPane js = new JScrollPane(tableA);
+				js.setPreferredSize(new Dimension(800,500));
+				JPanel panel = new JPanel();
+				panel.setSize(900,500);
+				panel.add(js,BorderLayout.CENTER);
+				f.setContentPane(panel);
+				f.setVisible(true);		
+			}
+			
+		}
+		public class raccourcisClavier implements KeyListener{
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				 if(((KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.ALT_DOWN_MASK)) != null)  &&  e.getKeyCode() == KeyEvent.VK_F4){
+
+			            e.consume();
+			            }
+				 if(((KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK)) != null)  &&  e.getKeyCode() == KeyEvent.VK_N){
+
+			            Logiciel.getFen7().setVisible(true);	
+			            }
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		
+		
 		}
 		
 	

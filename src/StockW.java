@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -276,7 +275,7 @@ public class StockW extends JFrame {
 //		popup.setLocationRelativeTo(null);
 //		popup.add(central = new JPanel());
 //		textSucces=new JLabel();
-//		textSucces.setText("Article crée");
+//		textSucces.setText("Article créé");
 //		popup.add(textSucces);
 //		popup.setVisible(true);
 //		
