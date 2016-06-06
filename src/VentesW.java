@@ -5,6 +5,14 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,8 +25,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
-public class VentesW extends JFrame {
+public class VentesW<ventes> extends JFrame {
 	/**
 	 * 
 	 */
@@ -28,6 +37,9 @@ public class VentesW extends JFrame {
 	private JLabel title, welcome, piclabel;
 	private String titlewindow = "Gestion des ventes";
 	private String labels[] = { "Stock", "Clients", "Ventes", "Paramètres" };
+	
+	private String[] entete = { "Référence", "Clients",  "Articles", "Total"};
+	private DefaultTableModel tableModel = new DefaultTableModel(entete,0);
 
 	// composants propres au menu principal
 	private JPanel line1, line2, line3;
@@ -44,9 +56,20 @@ public class VentesW extends JFrame {
 
 		createWindow();
 	}
+	
+	public void ajouterLesVentes(){
+		listeVentes = new JTable(this.tableModel);
+		this.tableModel.setRowCount(0);
+		listeVentes.setModel(tableModel);
+		for(int i = 0 ; i < Ventes.ventes.size();i++){
+			Object[] contenus={Ventes.ventes.get(i).getRef(), Clients.mesClients.get(i).getNom(), Stock.mesArticle.get(i).getNom()/* ,total */};
+			this.tableModel.addRow(contenus);
+		}
+	}
 
 	public void createWindow() {
 
+		this.ajouterLesVentes();
 		// Contener principal
 		main = new JPanel();
 		this.setContentPane(main);
@@ -118,19 +141,19 @@ public class VentesW extends JFrame {
 		modify.setEnabled(false);
 		remove.setEnabled(false);
 		search = new JButton("Rechercher");
-		listeVentes = new JTable();
 		
-		// Première ligne de "center"
+			
+		// PremiÃ¨re ligne de "center"
 		line1.add(add);
 		line1.add(modify);
 		line1.add(remove);
 
-		// Deuxième ligne de "center"
+		// DeuxiÃ¨me ligne de "center"
 		line2.add(searchtitle);
 		line2.add(tfsearch);
 		line2.add(search);
 
-		// troisième ligne de "center"
+		// troisiÃ¨me ligne de "center"
 		line3.add(new JScrollPane(listeVentes));
 
 		center.setLayout(new GridLayout(3, 1, 10, 10));
@@ -145,6 +168,7 @@ public class VentesW extends JFrame {
 		main.add(center, BorderLayout.CENTER);
 
 	}
+
 
 	public class OpenParametres implements ActionListener {
 		public void actionPerformed(ActionEvent ei) {
@@ -180,5 +204,27 @@ public class VentesW extends JFrame {
 		public void actionPerformed(ActionEvent ei) {
 			Logiciel.Show(Logiciel.getFen4());
 		}
+	}
+	
+	static public void ouvrirFichier() throws FileNotFoundException, IOException, ClassNotFoundException{
+		File fichierVente = new File("ventes.txt");
+
+		ObjectInputStream ouverture = new ObjectInputStream(new FileInputStream(fichierVente)); // attention, tu peux avoir des erreurs s'il ne trouve pas le fichier,
+	 //donc fais attention au nom que tu lui donne et le chemin aussi, si tu vas dans 
+	 // d'autres dossier. 
+		@SuppressWarnings("unchecked")
+		ArrayList<Vente1> tabFichier= (ArrayList<Vente1>) ouverture.readObject(); // On est oblig� de caster ce qu'il retourne
+		Ventes.ventes=tabFichier;	// 	Je sais pas pourquoi mais c'est comme �a ;)
+		ouverture.close();
+	}
+
+	
+	static public void enregistrer() throws FileNotFoundException, IOException, ClassNotFoundException{
+		
+		File fichierVente = new File("ventes.txt");
+		ObjectOutputStream enregistreVente = new ObjectOutputStream(new FileOutputStream(fichierVente));
+		ArrayList<Vente1> tabFichier = Ventes.ventes;
+		enregistreVente.writeObject(tabFichier);
+		enregistreVente.close();
 	}
 }

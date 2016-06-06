@@ -6,7 +6,7 @@ public class Vente1{
 	
 	private Client client;
 	private static int ref=0; 
-	private ArrayList<Vente> listeArticles;
+	static ArrayList<Vente> listeArticles;
 	private Date date;
 	private double total;
 	

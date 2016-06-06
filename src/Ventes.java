@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 public class Ventes {
+	
 	static public ArrayList<Vente1> ventes=new ArrayList<Vente1>();
 	
 	static public void ajoutVente(Vente1 v){
@@ -9,6 +10,7 @@ public class Ventes {
 		}
 		
 	}
+		
 	static public void ajouterVente(Vente1 v){
 		ajoutVente(v);
 	}

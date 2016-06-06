@@ -16,7 +16,7 @@ public class Vente {
 	public void setArticle(Article article) {
 		this.article = article;
 	}
-
+	
 	public int getQuantite() {
 		return quantite;
 	}
