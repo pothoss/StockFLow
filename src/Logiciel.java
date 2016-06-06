@@ -1,14 +1,11 @@
+
 import java.awt.Image;
 import java.awt.Window;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.JFrame;
-import javax.swing.KeyStroke;
 
 public class Logiciel {
 	private static String title = "StockFlow -";
@@ -261,7 +258,7 @@ public class Logiciel {
 //		Article iphone=new Article("iphone",50,600,620);
 //		Stock.ajouterArticle(iphone);
 ////		
-//	Stock.enregistrer();
+//		Stock.enregistrer();
 		
 //		
 //		Stock.ouvrirFichier();
